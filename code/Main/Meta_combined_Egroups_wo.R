@@ -510,7 +510,7 @@ for (i in 1:length(names)){
     # plot(res_gosh, alpha = 0.01, het="I2", out =outliers[[i]] , col=c("#1b8ec9","#0d5c0a"))
     # plot(res_gosh, alpha = 0.1, het="I2", col=c("#A6C0CE"))
     # plot(res_gosh, alpha = 0.2, het="I2", out = out[i], col=c("#3199cf","#0d5c0a") )
-    plot(res_gosh, alpha = 0.2, het="I2", col=c("#3199cf","#0d5c0a"), cex.axis = 1.4,cex.lab = 1.5)
+    plot(res_gosh, alpha = 0.2, het="I2", col=c("gray75","#0d5c0a"), cex.axis = 1.4,cex.lab = 1.5, xlim = c(-3, 3))
     
     dev.off()
     sink()

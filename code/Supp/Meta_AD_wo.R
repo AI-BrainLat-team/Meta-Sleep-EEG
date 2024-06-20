@@ -23,9 +23,10 @@ package.check <- lapply(
 
 hrbrthemes::import_roboto_condensed()
 
-data <- read_csv("/home/marcelo/Sync/BrainLat/2024/Meta-eeg/data/tidy/ftd.csv")
-save_path <- "/home/marcelo/Sync/BrainLat/2024/Meta-eeg/Results/FTD/wo"
+data <- read_csv("/home/marcelo/Sync/BrainLat/2024/Meta-eeg/data/tidy/ad.csv")
+save_path <- "/home/marcelo/Sync/BrainLat/2024/Meta-eeg/Results/AD/wo"
 colnames(data)
+unique(data$G2)
 
 # Erase no use columns
 data$`#` <- NULL
@@ -34,13 +35,12 @@ data$G2_type <- NULL
 data$studlab <- gsub("_", " ", data$auth_year)
 # data$sudlab <- gsub("(\\d{4})", "\\1)", data$studlab, perl=TRUE)
 
-columns_to_convert <- c("variable", "country", "auth_year", "G1", "G2", "author") 
+columns_to_convert <- c("variable", "country", "auth_year", "G1", "G2","author") 
+
 for (col in columns_to_convert) {
     data[[col]] <- factor(data[[col]])
 }
 
-# data <- data[(data$G2 %in% c("AD")),] # Sólo AD
-# data <- data[!(data$G2 %in% c("AD")),] # Sólo FTD
 length(unique(data$auth_year))
 
 # Check levels
@@ -49,6 +49,7 @@ levels(data$country)
 levels(data$G1)
 levels(data$G2)
 
+data$mean_G2 <- as.numeric(data$mean_G2)
 
 # subset data
 rem <- data[(data$variable %in% c("REM_p")), ]
@@ -69,6 +70,38 @@ nrow(se_p)
 nrow(sl_m)
 nrow(tst_m)
 nrow(waso_m)
+
+rem %>%
+    group_by('G2') %>%
+    count(G2)
+
+n1 %>%
+    group_by('G2') %>%
+    count(G2)
+
+n2 %>%
+    group_by('G2') %>%
+    count(G2)
+
+n3 %>%
+    group_by('G2') %>%
+    count(G2)
+
+se_p %>%
+    group_by('G2') %>%
+    count(G2)
+
+sl_m %>%
+    group_by('G2') %>%
+    count(G2)
+
+tst_m %>%
+    group_by('G2') %>%
+    count(G2)
+
+waso_m %>%
+    group_by('G2') %>%
+    count(G2)
 
 ####### Random effects models:
 rem.m <- metacont(n.e = n2,
@@ -207,34 +240,68 @@ waso_m.m <- metacont(n.e = n2,
                      title = 'WASO (min) Meta-Analysis')
 waso_m.m
 
+
 #### Find outliers
 find.outliers(rem.m) 
-rem_outliers <- c("Boini_2022")
+rem_outliers <- c("Montplaisir_1995", "Liguori_2017", "Liguori_2020", "Liguori_2014", "Rauchs_2008")
 find.outliers(n1.m) 
-n1_outliers <- c("Boini_2022")
+n1_outliers <- c("Liu_2020", "De Gennaro_2017", "Liguori_2020", "Azami_2023", "Liguori_2014" )
 find.outliers(n2.m)
-n2_outliers <- c("Boini_2022")
+n2_outliers <- c("Bonakis_2014", "Liu_2020" )
 find.outliers(n3.m) 
-# n3_outliers <- c("Liu_2020", "Maestri_2015", "Boini_2022")
+n3_outliers <- c("Liu_2020", "Azami_2023" )
 find.outliers(se_p.m)
-se_p_outliers <- c("Boini_2022", "Levendowski_2023")
+se_p_outliers <- c("De Gennaro_2017", "Liguori_2020", "Liguori_2019" )
 find.outliers(sl_m.m)
-# sl_m_outliers <- c("Boini_2022")
+sl_m_outliers <- c("Montplaisir_1995" )
 find.outliers(tst_m.m)
-tst_m_outliers <- c("Maestri_2015")
+tst_m_outliers <- c("Chen_2012", "Gorgoni_2016", "Liu_2020", "De Gennaro_2017", "Liguori_2020" )
 find.outliers(waso_m.m)
-# waso_m_outliers <- c("Liguori_2020", "Liguori_2019", "Liguori_2014", "Boini_2022")
-
+waso_m_outliers <- c("Liguori_2020", "Liguori_2019" )
 
 ### Remove oultiers from data
 rem <- subset(rem, ! (auth_year %in% rem_outliers) )
 n1 <- subset(n1, ! (auth_year %in% n1_outliers) )
 n2 <- subset(n2, ! (auth_year %in% n2_outliers) )
-# n3 <- subset(n3, ! (auth_year %in% n3_outliers) )
+n3 <- subset(n3, ! (auth_year %in% n3_outliers) )
 se_p <- subset(se_p, ! (auth_year %in% se_p_outliers) )
-# sl_m <- subset(sl_m, ! (auth_year %in% sl_m_outliers) )
+sl_m <- subset(sl_m, ! (auth_year %in% sl_m_outliers) )
 tst_m <- subset(tst_m, ! (auth_year %in% tst_m_outliers) )
-# waso_m <- subset(waso_m, ! (auth_year %in% waso_m_outliers))
+waso_m <- subset(waso_m, ! (auth_year %in% waso_m_outliers))
+
+# 
+# 
+# rem %>%
+#     group_by('G2') %>%
+#     count(G2)
+# 
+# n1 %>%
+#     group_by('G2') %>%
+#     count(G2)
+# 
+# n2 %>%
+#     group_by('G2') %>%
+#     count(G2)
+# 
+# n3 %>%
+#     group_by('G2') %>%
+#     count(G2)
+# 
+# se_p %>%
+#     group_by('G2') %>%
+#     count(G2)
+# 
+# sl_m %>%
+#     group_by('G2') %>%
+#     count(G2)
+# 
+# tst_m %>%
+#     group_by('G2') %>%
+#     count(G2)
+# 
+# waso_m %>%
+#     group_by('G2') %>%
+#     count(G2)
 
 
 # Re-run the models
@@ -290,22 +357,22 @@ n2.m <- metacont(n.e = n2,
                  title = 'N2 (%) Meta-Analysis')
 n2.m
 
-# n3.m <- metacont(n.e = n2,
-#                  mean.e = mean_G2,
-#                  sd.e = sd_G2,
-#                  n.c = n1,
-#                  mean.c = mean_G1,
-#                  sd.c = sd_G1,
-#                  studlab = studlab,
-#                  data=n3, 
-#                  sm="SMD",
-#                  method.smd = "Hedges",
-#                  comb.fixed = FALSE, comb.random = TRUE,
-#                  prediction = TRUE, method.predict = "HK",
-#                  method.tau = "REML",
-#                  hank = TRUE,
-#                  title = 'N3 (%) Meta-Analysis')
-# n3.m
+n3.m <- metacont(n.e = n2,
+                 mean.e = mean_G2,
+                 sd.e = sd_G2,
+                 n.c = n1,
+                 mean.c = mean_G1,
+                 sd.c = sd_G1,
+                 studlab = studlab,
+                 data=n3,
+                 sm="SMD",
+                 method.smd = "Hedges",
+                 comb.fixed = FALSE, comb.random = TRUE,
+                 prediction = TRUE, method.predict = "HK",
+                 method.tau = "REML",
+                 hank = TRUE,
+                 title = 'N3 (%) Meta-Analysis')
+n3.m
 
 se_p.m <- metacont(n.e = n2,
                    mean.e = mean_G2,
@@ -324,22 +391,22 @@ se_p.m <- metacont(n.e = n2,
                    title = 'SE (%) Meta-Analysis')
 se_p.m
 
-# sl_m.m <- metacont(n.e = n2,
-#                    mean.e = mean_G2,
-#                    sd.e = sd_G2,
-#                    n.c = n1,
-#                    mean.c = mean_G1,
-#                    sd.c = sd_G1,
-#                    studlab = studlab,
-#                    data=sl_m, 
-#                    sm="SMD",
-#                    method.smd = "Hedges",
-#                    comb.fixed = FALSE, comb.random = TRUE,
-#                    prediction = TRUE, method.predict = "HK",
-#                    method.tau = "REML",
-#                    hank = TRUE,
-#                    title = 'SL (min) Meta-Analysis')
-# sl_m.m
+sl_m.m <- metacont(n.e = n2,
+                   mean.e = mean_G2,
+                   sd.e = sd_G2,
+                   n.c = n1,
+                   mean.c = mean_G1,
+                   sd.c = sd_G1,
+                   studlab = studlab,
+                   data=sl_m,
+                   sm="SMD",
+                   method.smd = "Hedges",
+                   comb.fixed = FALSE, comb.random = TRUE,
+                   prediction = TRUE, method.predict = "HK",
+                   method.tau = "REML",
+                   hank = TRUE,
+                   title = 'SL (min) Meta-Analysis')
+sl_m.m
 
 tst_m.m <- metacont(n.e = n2,
                     mean.e = mean_G2,
@@ -358,29 +425,32 @@ tst_m.m <- metacont(n.e = n2,
                     title = 'TST (min) Meta-Analysis')
 tst_m.m
 
-# waso_m.m <- metacont(n.e = n2,
-#                      mean.e = mean_G2,
-#                      sd.e = sd_G2,
-#                      n.c = n1,
-#                      mean.c = mean_G1,
-#                      sd.c = sd_G1,
-#                      studlab = studlab,
-#                      data=waso_m, 
-#                      sm="SMD",
-#                      method.smd = "Hedges",
-#                      comb.fixed = FALSE, comb.random = TRUE,
-#                      prediction = TRUE, method.predict = "HK",
-#                      method.tau = "REML",
-#                      hank = TRUE,
-#                      title = 'WASO (min) Meta-Analysis')
-# waso_m.m
+waso_m.m <- metacont(n.e = n2,
+                     mean.e = mean_G2,
+                     sd.e = sd_G2,
+                     n.c = n1,
+                     mean.c = mean_G1,
+                     sd.c = sd_G1,
+                     studlab = studlab,
+                     data=waso_m,
+                     sm="SMD",
+                     method.smd = "Hedges",
+                     comb.fixed = FALSE, comb.random = TRUE,
+                     prediction = TRUE, method.predict = "HK",
+                     method.tau = "REML",
+                     hank = TRUE,
+                     title = 'WASO (min) Meta-Analysis')
+waso_m.m
 
 
-setwd("/home/marcelo/Sync/BrainLat/2024/Meta-eeg/Results/FTD/wo")
-modelos <- list(rem.m, n1.m, n2.m, se_p.m, tst_m.m)
+
+
+setwd("/home/marcelo/Sync/BrainLat/2024/Meta-eeg/Results/AD/wo")
+modelos <- list(rem.m, n1.m, n2.m, n3.m, se_p.m, sl_m.m, tst_m.m, waso_m.m)
 ####  Save results
 ### All predictors 
-names <- c("REM_Meta.txt", "N1_Meta.txt","N2_Meta.txt","se_p_Meta.txt", "tst_m_Meta.txt")
+names <- c("REM_Meta.txt", "N1_Meta.txt","N2_Meta.txt","N3_Meta.txt",
+           "se_p_Meta.txt", "sl_m_Meta.txt", "tst_m_Meta.txt","waso_m_Meta.txt")
 
 for (i in 1:length(names)){
     # substr(names[i], start=1, stop=nchar(names[i])-3)
@@ -388,8 +458,6 @@ for (i in 1:length(names)){
     print(modelos[[i]])
     sink()
 }
-
-
 
 #####################
 # Forest All predictors
@@ -399,13 +467,12 @@ par(family = "Arial")  # Set the font family to Arial
 par(cex.axis = 1.1, cex.lab = 1.1)
 font = c('Arial')
 
-
 ### Forest plots
-# names <- c("REM_p_Forest.png", "N1_p_Forest.png", "N2_p_Forest.png",
-#            "se_p_Forest.png",  "tst_m_Forest.png")
-names <- c("REM_p_Forest.pdf", "N1_p_Forest.pdf", "N2_p_Forest.pdf",
-           "se_p_Forest.pdf",  "tst_m_Forest.pdf")
+# names <- c("REM_p_Forest.png", "N1_p_Forest.png", "N2_p_Forest.png", "N3_p_Forest.png",
+#            "se_p_Forest.png", "sl_m_Forest.png", "tst_m_Forest.png", "waso_m_Forest.png")
 
+names <- c("REM_p_Forest.pdf", "N1_p_Forest.pdf", "N2_p_Forest.pdf", "N3_p_Forest.pdf",
+           "se_p_Forest.pdf", "sl_m_Forest.pdf", "tst_m_Forest.pdf", "waso_m_Forest.pdf")
 
 for (i in 1:length(names)){
     pdf(file=names[i], width = 9, height = 8, fonts =font, bg='white', title='')
@@ -428,16 +495,17 @@ for (i in 1:length(names)){
 
 
 ### Enhanced Funnel plots
-# names <- c("REM_funnel.png", "N1_funnel.png","N2_funnel.png",
-#            "se_p_funnel.png",  "tst_m_funnel.png")
-names <- c("REM_funnel.pdf", "N1_funnel.pdf","N2_funnel.pdf",
-           "se_p_funnel.pdf",  "tst_m_funnel.pdf")
+# names <- c("REM_funnel.png", "N1_funnel.png","N2_funnel.png","N3_funnel.png",
+#            "se_p_funnel.png", "sl_m_funnel.png", "tst_m_funnel.png", "waso_m_funnel.png")
+
+names <- c("REM_funnel.pdf", "N1_funnel.pdf","N2_funnel.pdf","N3_funnel.pdf",
+           "se_p_funnel.pdf", "sl_m_funnel.pdf", "tst_m_funnel.pdf", "waso_m_funnel.pdf")
 
 col.contour = c("gray75", "gray85", "gray95")
 
 # Loop para generar y guardar los gráficos
 for(i in 1:length(names)) {
-    pdf(file=names[i], width = 9, height = 8, fonts =font, bg='white', title='')
+    pdf(file = names[i], width = 9, height = 8, fonts =font, bg='white')
     # png(file=names[i], width = 6, height = 7, unit='in', res=300,  bg='white')
     # Generate funnel plot (we do not include study labels here)
     metafor::funnel(modelos[[i]], steps=5, yaxs = "i", lwd = 1, cex = 2, hlines='black', 
@@ -465,10 +533,11 @@ for(i in 1:length(names)) {
 
 
 ### P-Curve plots
-# names <- c("REM_pcurve.png", "N1_pcurve.png","N2_pcurve.png",
-#            "se_p_pcurve.png", "tst_m_pcurve.png")
-names <- c("REM_pcurve.pdf", "N1_pcurve.pdf","N2_pcurve.pdf",
-           "se_p_pcurve.pdf", "tst_m_pcurve.pdf")
+# names <- c("REM_pcurve.png", "N1_pcurve.png","N2_pcurve.png","N3_pcurve.png",
+#            "se_p_pcurve.png", "sl_m_pcurve.png", "tst_m_pcurve.png", "waso_m_pcurve.png")
+
+names <- c("REM_pcurve.pdf", "N1_pcurve.pdf","N2_pcurve.pdf","N3_pcurve.pdf",
+           "se_p_pcurve.pdf", "sl_m_pcurve.pdf", "tst_m_pcurve.pdf", "waso_m_pcurve.pdf")
 
 for (i in 1:length(names)){
     tryCatch({
@@ -485,8 +554,8 @@ for (i in 1:length(names)){
 
 ####  Eggers test
 ### All predictors 
-names <- c("REM_Eggers.png", "N1_Eggers.png","N2_Eggers.png",
-           "se_p_Eggers.png", "tst_m_Eggers.png")
+names <- c("REM_Eggers.png", "N1_Eggers.png","N2_Eggers.png","N3_Eggers.png",
+           "se_p_Eggers.png", "sl_m_Eggers.png", "tst_m_Eggers.png","waso_m_Eggers.png")
 
 for (i in 1:length(names)){
     # substr(names[i], start=1, stop=nchar(names[i])-3)
@@ -503,8 +572,8 @@ for (i in 1:length(names)){
 par(cex.axis = 1.4, cex.lab = 1.5)
 
 ##GOSH
-names <- c("REM_gosh.png", "N1_gosh.png","N2_gosh.png",
-           "se_p_gosh.png", "tst_m_gosh.png")
+names <- c("REM_gosh.png", "N1_gosh.png","N2_gosh.png","N3_gosh.png",
+           "se_p_gosh.png", "sl_m_gosh.png", "tst_m_gosh.png", "waso_m_gosh.png")
 
 gosh_list <- list() # list to save gosh plots
 
@@ -525,4 +594,5 @@ for (i in 1:length(names)){
     dev.off()
     sink()
 }
+
 print("DONE!")
